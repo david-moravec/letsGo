@@ -20,14 +20,12 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ts, err := template.ParseFiles(files...)
-
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
 
 	err = ts.ExecuteTemplate(w, "base", nil)
-
 	if err != nil {
 		app.serverError(w, err)
 	}
@@ -35,7 +33,6 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
-
 	if err != nil || id < 1 {
 		app.notFound(w)
 		return
@@ -51,5 +48,15 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("Create new snippet"))
+	title := "0 snail"
+	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n- Kobauashi Issa"
+	expires := 7
+
+	id, err := app.snippets.Insert(title, content, expires)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/snippet/view?id=%d", id), http.StatusSeeOther)
 }
